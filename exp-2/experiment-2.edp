@@ -6,7 +6,7 @@ real alpha = 0.4;
 real beta = 2;
 real gamma = 0.6;
 real delta = 1;
-real scaleFactor = 10;
+real scaleFactor = 30;
 
 real uAst = alpha * gamma / (beta + gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
@@ -51,7 +51,7 @@ real lg #i = Curves(2, be(i * 2 + 1) - 1); // END OF MACRO
 GG(0)
 func bord = G0(-n);
 mesh Th = buildmesh(bord);
-plot(Th, wait = 1);
+plot(Th, wait = 0);
 fespace Vh(Th,P2);
 Vh u, v, wu, wv, uOld, vOld;
 
