@@ -51,7 +51,7 @@ real lg #i = Curves(2, be(i * 2 + 1) - 1); // END OF MACRO
 GG(0)
 func bord = G0(-n);
 mesh Th = buildmesh(bord);
-plot(Th, wait = 0);
+
 fespace Vh(Th,P2);
 Vh u, v, wu, wv, uOld, vOld;
 
@@ -74,12 +74,12 @@ for (real t = 0; t < T; t += dt)
 
     iteration ++;
     cout<<"Iteration: " << iteration <<endl;
-    plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
+    // plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
     // plot(v, nbiso=40, value=1, fill=1, cmm="predator");
 
     real ucount = int2d(Th)(u); 
 	real vcount = int2d(Th)(v);
-    cout<<u<<endl;
+
 	file << t << " ; " << ucount << " ; " << vcount << endl;
 }
 
