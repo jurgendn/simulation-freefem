@@ -8,9 +8,9 @@ real gamma = 0.5;
 real delta = 1;
 
 int T = 200;
-real dt = 0.2;
+real dt = 0.1;
 int timeSteps = T / dt + 1;
-int n = 200;
+int n = 100;
 
 real[int, int] Curves(3, 1);
 int[int] be(1);
@@ -30,7 +30,7 @@ int nc;
     real vmax = f1[].max;
     real vmin = f1[].min;
     real vm = (vmin + vmax) / 2;
-    verbosity = 3;
+    verbosity = 1;
     nc = isoline(Th, f1, iso = vm, close = 0, Curves, beginend = be, smoothing = .005, ratio = 0.1);
     verbosity = 1;
 }
@@ -49,14 +49,14 @@ GG(1);
 func bord = G0(-n) + G1(-n);
 mesh Th = buildmesh(bord);
 plot(Th, wait = 1);
-fespace Vh(Th, P2);
+fespace Vh(Th, P1);
 Vh u, v, wu, wv, uOld, vOld;
 
-Vh uAst = alpha * gamma / (beta + gamma);
-Vh vAst = (1 - uAst) * (uAst + alpha);
+real uAst = alpha * gamma / (beta + gamma);
+real vAst = (1 - uAst) * (uAst + alpha);
 
 u = uAst;
-v = vAst * ((x - 305) ^ 2 + (y - 763) ^ 2 < 100);
+v = vAst;
 
 uOld = u;
 vOld = v;
@@ -66,10 +66,10 @@ int iteration = 0;
 for (real t = 0; t < T; t += dt)
 {
     solve Predator(v, wv) =
-        int2d(Th)(v * wv / dt - beta * uOld * v * wv / (abs(uOld) + alpha) + gamma * v * wv) - int2d(Th)(vOld * wv / dt) + int2d(Th)(delta * (dx(v) * dx(wv) + dy(v) * dy(wv)));
+        int2d(Th)(v * wv / dt - beta * uOld * v * wv / (abs(uOld) + alpha) + gamma * v * wv) - int2d(Th)(vOld * wv / dt) + int2d(Th)(delta * (dx(v) * dx(wv) + dy(v) * dy(wv))) + on(G0, v = 0);
 
     solve Prey(u, wu) =
-        int2d(Th)(u * wu / dt - u * wu + u * abs(uOld) * wu) - int2d(Th)(uOld * wu / dt) + int2d(Th)(dx(u) * dx(wu) + dy(u) * dy(wu)) + int2d(Th)(uOld * v * wu / (abs(uOld) + alpha));
+        int2d(Th)(u * wu / dt - u * wu + u * abs(uOld) * wu) - int2d(Th)(uOld * wu / dt) + int2d(Th)(dx(u) * dx(wu) + dy(u) * dy(wu)) + int2d(Th)(uOld * v * wu / (abs(uOld) + alpha)) + on(G0, u = 0);
 
     vOld = v;
     uOld = u;

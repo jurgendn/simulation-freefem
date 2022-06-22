@@ -4,8 +4,6 @@ real alpha = 0.2;
 real beta = 1;
 real gamma = 0.5;
 real delta = 5;
-real k1 = -0.5;
-real k2 = -0.5;
 
 real uAst = alpha * gamma / (beta + gamma);
 real vAst = (1 - uAst) * (uAst + alpha);

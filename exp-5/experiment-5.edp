@@ -10,14 +10,14 @@ real uAst = alpha * gamma / (beta + gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 
 int T = 39;
-real dt = 0.2;
+real dt = 0.05;
 int timeSteps = T / dt + 1;
-int n = 100;
+int n = 80;
 
 cout << uAst << endl;
 cout << vAst << endl;
 
-real scaleFactor = 20;
+real scaleFactor = 5;
 // Omega 1 bound
 border C(t = 0, 2 * pi)
 {
@@ -32,7 +32,7 @@ mesh Th = buildmesh(C(n));
 
 plot(Th, wait = 1);
 
-fespace Vh(Th, P1);
+fespace Vh(Th, P2);
 
 Vh u, v, wu, wv, uOld, vOld;
 

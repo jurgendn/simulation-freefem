@@ -18,8 +18,8 @@ int n = 100;
 cout<<uAst<<endl;
 cout<<vAst<<endl;
 
-int offset = 6.25;
-int rOut = 6.25;
+int offset = 25;
+int rOut = 25;
 border Bound1(t = -5 * pi / 180, 5 * pi / 180)
 {
     x = offset + rOut * cos(t);
