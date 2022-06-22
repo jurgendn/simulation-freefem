@@ -1,0 +1,73 @@
+// Neumman thuần nhất
+load "medit"
+
+real scaleFactor = 1;
+real width = 400/scaleFactor;
+border C1(t = 0, width)
+{
+    x = t;
+    y = 0;
+    label = 1;
+}
+border C2(t = 0, width)
+{
+    x = width;
+    y = t;
+    label = 1;
+}
+border C3(t = width, 0)
+{
+    x = t;
+    y = width;
+    label = 1;
+}
+border C4(t = width, 0)
+{
+    x = 0;
+    y = t;
+    label = 1;
+}
+
+int n = 20;
+mesh Th = buildmesh(C1(n) + C2(n) + C3(n) + C4(n));
+fespace Vh(Th, P2);
+
+real alpha = 0.4, beta = 2, gamma = 0.6, delta = 1, T = 150, dt = 0.2;
+
+real uAst = alpha * gamma / (beta - gamma);
+real vAst = (1 - uAst) * (uAst + alpha);
+
+Vh u, v, uOld, vOld, wu, wv;
+
+u = uAst - 2 * 1e-7 * (x - 0.1 * y - 225/scaleFactor) * (x - 0.1 * y - 675/scaleFactor);
+v = vAst - 3 * 1e-5 * (x - 450/scaleFactor) - 1.2 * 1e-4 * (y - 150/scaleFactor);
+
+uOld = u;
+vOld = v;
+
+int iteration = 0;
+ofstream file("./u_v_count.txt");
+for (real t = dt; t <= T; t += dt)
+{
+
+    solve Predator(v, wv) = int2d(Th)(v * wv / dt - beta * uOld * v * wv / (abs(uOld) + alpha) + gamma * v * wv) - int2d(Th)(vOld * wv / dt) + int2d(Th)(delta * (dx(v) * dx(wv) + dy(v) * dy(wv)));
+
+    solve Prey(u, wu) = int2d(Th)(u * wu / dt - u * wu + u * abs(uOld) * wu) - int2d(Th)(uOld * wu / dt) + int2d(Th)(dx(u) * dx(wu) + dy(u) * dy(wu)) + int2d(Th)(uOld * v * wu / (abs(uOld) + alpha));
+
+    vOld = v;
+    uOld = u;
+
+    iteration ++;
+    cout<<"Iteration: " << iteration <<endl;
+    plot(u, nbiso = 40, value = 1, fill = 1, cmm = "prey");
+    // plot(v, nbiso=40, value=1, fill=1, cmm="predator");
+
+    real ucount = int2d(Th)(u); 
+	real vcount = int2d(Th)(v);
+	file << t << " ; " << ucount << " ; " << vcount << endl;
+}
+
+// savemesh(Th,"Save/Th.msh");
+plot(u, nbiso = 40, value = 1, fill = 1, ps = "prey.ps", cmm = "prey");
+plot(v, nbiso = 40, value = 1, fill = 1, ps = "predator.ps", cmm = "predator");
+file.flush;

@@ -1,0 +1,73 @@
+load "isoline"
+load "ppm2rnm"
+
+real[int, int] Curves(3, 1);
+int[int] be(1);
+int nc;
+{
+
+    real[int, int] ff1("TN1.pgm");
+    int nx = ff1.n, ny = ff1.m;
+
+    mesh Th = square(nx - 1, ny - 1, [ (nx - 1) * (x), (ny - 1) * (1 - y) ]);
+    mesh Tf = Th;
+
+    fespace Vh(Th, P1);
+
+    Vh f1;
+    f1[] = ff1;
+    real vmax = f1[].max;
+    real vmin = f1[].min;
+    real vm = (vmin + vmax) / 2;
+    verbosity = 3;
+    nc = isoline(Th, f1, iso = vm, close = 0, Curves, beginend = be, smoothing = .005, ratio = 0.1);
+    verbosity = 1;
+}
+
+int ic0 = be(0), ic1 = be(1) - 1;
+
+macro GG(i)
+border G #i(t = 0, 1)
+{
+    P = Curve(Curves, be(i * 2), be(i * 2 + 1) - 1, t);
+    label = i + 1;
+}
+real lg #i = Curves(2, be(i * 2 + 1) - 1); // END OF MACRO
+GG(0)
+real hh = -8;
+func bord = G0(lg0 / hh);
+mesh Th = buildmesh(bord);
+plot(Th, wait = 1);
+
+Vh u, v, wu, wv, uOld, vOld;
+
+uOld = uAst*(y>top||y<bottom||x<left||x>right);
+vOld = vAst*((x-100/scaleFactor)^2 + (y-150/scaleFactor)^2 <= (100/scaleFactor)^2);
+
+u = uAst*(y>top||y<bottom||x<left||x>right);
+v = vAst*((x-(100/scaleFactor))^2 + (y-(150/scaleFactor))^2 <= (100/scaleFactor)^2);
+
+ofstream file("./u_v_count.txt");
+int iteration = 0;
+for (real t = 0; t < T; t += dt)
+{
+    solve Predator(v, wv) = int2d(Th)(v * wv / dt - beta * uOld * v * wv / (abs(uOld) + alpha) + gamma * v * wv) - int2d(Th)(vOld * wv / dt) + int2d(Th)(delta * (dx(v) * dx(wv) + dy(v) * dy(wv)));
+
+    solve Prey(u, wu) = int2d(Th)(u * wu / dt - u * wu + u * abs(uOld) * wu) - int2d(Th)(uOld * wu / dt) + int2d(Th)(dx(u) * dx(wu) + dy(u) * dy(wu)) + int2d(Th)(uOld * v * wu / (abs(uOld) + alpha));
+
+    vOld = v;
+    uOld = u;
+    iteration ++;
+    cout<<"Iteration: " << iteration <<endl;
+    plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
+    // plot(v, nbiso=40, value=1, fill=1, cmm="predator");
+
+    real ucount = int2d(Th)(u); 
+	real vcount = int2d(Th)(v);
+	file << t << " ; " << ucount << " ; " << vcount << endl;
+}
+
+plot(u, nbiso = 40, value = 1, fill = 1, ps = "prey.ps", cmm = "prey");
+plot(v, nbiso = 40, value = 1, fill = 1, ps = "predator.ps", cmm = "predator");
+
+file.flush;

@@ -1,0 +1,73 @@
+load "medit"
+
+real alpha = 0.4;
+real beta = 2;
+real gamma = 0.6;
+real delta = 1;
+real k1 = -0.5;
+real k2 = -0.5;
+
+real uAst = alpha * gamma / (beta + gamma);
+real vAst = (1 - uAst) * (uAst + alpha);
+
+int T = 300;
+real dt = 1.0 / 3;
+int timeSteps = T / dt + 1;
+int n = 100;
+
+cout<<uAst<<endl;
+cout<<vAst<<endl;
+
+int offset = 6.25;
+int rOut = 6.25;
+border Bound1(t = -5 * pi / 180, 5 * pi / 180)
+{
+    x = offset + rOut * cos(t);
+    y = offset + rOut * sin(t);
+    label = 1;
+}
+
+border Bound2(t = 5 * pi / 180, 355 * pi / 180)
+{
+    x = offset + rOut * cos(t);
+    y = offset + rOut * sin(t);
+    label = 2;
+}
+
+mesh Th = buildmesh(Bound1(n) + Bound2(n));
+plot(Th, wait = 1);
+
+fespace Vh(Th, P1);
+
+Vh u, v, wu, wv, uOld, vOld;
+
+uOld = uAst;
+vOld = vAst;
+
+u = uAst;
+v = vAst;
+
+ofstream file("./u_v_count.txt");
+int iteration = 0;
+for (real t = dt; t < T; t += dt)
+{
+    solve Predator(v, wv) = int2d(Th)(v * wv / dt - beta * uOld * v * wv / (abs(uOld) + alpha) + gamma * v * wv) - int2d(Th)(vOld * wv / dt) + int2d(Th)(delta * (dx(v) * dx(wv) + dy(v) * dy(wv))) - int1d(Th, 1)(k1 * vOld * wv);
+
+    solve Prey(u, wu) = int2d(Th)(u * wu / dt - u * wu + u * abs(uOld) * wu) - int2d(Th)(uOld * wu / dt) + int2d(Th)(dx(u) * dx(wu) + dy(u) * dy(wu)) + int2d(Th)(uOld * v * wu / (abs(uOld) + alpha)) - int1d(Th, 1)(k2 * uOld * wu);
+
+    vOld = v;
+    uOld = u;
+    iteration ++;
+    cout<<"Iteration: " << iteration <<endl;
+    // plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
+    plot(v, nbiso=40, value=1, fill=1, cmm="predator");
+
+    real ucount = int2d(Th)(u); 
+	real vcount = int2d(Th)(v);
+	file << t << " ; " << ucount << " ; " << vcount << endl;
+}
+
+plot(u, nbiso = 40, value = 1, fill = 1, ps = "prey.ps", cmm = "prey");
+plot(v, nbiso = 40, value = 1, fill = 1, ps = "predator.ps", cmm = "predator");
+
+file.flush;

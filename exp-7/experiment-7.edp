@@ -1,0 +1,35 @@
+load "medit"
+
+int lower = 100;
+int upper = 300;
+border C1(t = lower, upper)
+{
+    x = t;
+    y = lower;
+    label = 1;
+}
+border C2(t = lower, upper)
+{
+    x = upper;
+    y = t;
+    label = 1;
+}
+border C3(t = upper, lower)
+{
+    x = t;
+    y = upper;
+    label = 1;
+}
+border C4(t = upper, lower)
+{
+    x = lower;
+    y = t;
+    label = 1;
+}
+
+int n =100;
+
+mesh Th = buildmesh(C1(n) + C2(n) + C3(n) + C4(n));
+plot(Th, wait = 1);
+
+

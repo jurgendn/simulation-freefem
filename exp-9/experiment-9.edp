@@ -1,0 +1,107 @@
+load "medit"
+
+real alpha = 0.2;
+real beta = 1;
+real gamma = 0.5;
+real delta = 5;
+real k1 = -0.5;
+real k2 = -0.5;
+
+real uAst = alpha * gamma / (beta + gamma);
+real vAst = (1 - uAst) * (uAst + alpha);
+
+int T = 100;
+real dt = 0.2;
+int timeSteps = T / dt + 1;
+int n = 30;
+
+cout << uAst << endl;
+cout << vAst << endl;
+
+real scaleFactor = 20;
+// Omega 1 bound
+border omegaOne(t = asin(1.0 / 10), 2 * pi - asin(1.0 / 10))
+{
+    x = (100 + 100 * cos(t))/scaleFactor;
+    y = (150 + 100 * sin(t))/scaleFactor;
+}
+
+// Omega 2 bound
+border omegaTwo(t = asin(1.0 / 10) - pi, -asin(1.0 / 10) + pi)
+{
+    x = (400 + 100 * cos(t))/scaleFactor;
+    y = (150 + 100 * sin(t))/scaleFactor;
+}
+
+
+// Omega 3 bound
+real top = 160/scaleFactor;
+real bottom = 140/scaleFactor;
+real left = (100 + 30 * sqrt(11))/scaleFactor;
+real right = (400 - 30 * sqrt(11))/scaleFactor;
+
+border omegaThreeBottom(t = left, right)
+{
+    x = t;
+    y = bottom;
+}
+
+border omegaThreeRight(t = bottom, top)
+{
+    x = right;
+    y = t;
+}
+
+border omegaThreeTop(t = right, left)
+{
+    x = t;
+    y = top;
+}
+border omegaThreeLeft(t = top, bottom)
+{
+    x = left;
+    y = t;
+}
+
+
+
+// Build mesh
+
+mesh Th = buildmesh(omegaOne(n) + omegaTwo(n) + omegaThreeBottom(n) + omegaThreeRight(n) + omegaThreeTop(n) + omegaThreeLeft(n));
+
+plot(Th, wait = 1);
+
+fespace Vh(Th, P1);
+
+Vh u, v, wu, wv, uOld, vOld;
+
+uOld = uAst*(y>top||y<bottom||x<left||x>right);
+vOld = vAst*((x-100/scaleFactor)^2 + (y-150/scaleFactor)^2 <= (100/scaleFactor)^2);
+
+u = uAst*(y>top||y<bottom||x<left||x>right);
+v = vAst*((x-(100/scaleFactor))^2 + (y-(150/scaleFactor))^2 <= (100/scaleFactor)^2);
+
+ofstream file("./u_v_count.txt");
+int iteration = 0;
+for (real t = 0; t < T; t += dt)
+{
+    solve Predator(v, wv) = int2d(Th)(v * wv / dt - beta * uOld * v * wv / (abs(uOld) + alpha) + gamma * v * wv) - int2d(Th)(vOld * wv / dt) + int2d(Th)(delta * (dx(v) * dx(wv) + dy(v) * dy(wv)));
+
+    solve Prey(u, wu) = int2d(Th)(u * wu / dt - u * wu + u * abs(uOld) * wu) - int2d(Th)(uOld * wu / dt) + int2d(Th)(dx(u) * dx(wu) + dy(u) * dy(wu)) + int2d(Th)(uOld * v * wu / (abs(uOld) + alpha));
+
+    vOld = v;
+    uOld = u;
+    iteration ++;
+    cout<<"Iteration: " << iteration <<endl;
+    plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
+    // plot(v, nbiso=40, value=1, fill=1, cmm="predator");
+
+    real ucount = int2d(Th)(u); 
+	real vcount = int2d(Th)(v);
+	file << t << " ; " << ucount << " ; " << vcount << endl;
+}
+
+plot(u, nbiso = 40, value = 1, fill = 1, ps = "prey.ps", cmm = "prey");
+plot(v, nbiso = 40, value = 1, fill = 1, ps = "predator.ps", cmm = "predator");
+
+file.flush;
