@@ -9,14 +9,14 @@ real uAst = alpha * gamma / (beta + gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 
 int T = 100;
-real dt = 0.2;
+real dt = 0.1;
 int timeSteps = T / dt + 1;
-int n = 30;
+int n = 80;
 
 cout << uAst << endl;
 cout << vAst << endl;
 
-real scaleFactor = 20;
+real scaleFactor = 10;
 // Omega 1 bound
 border omegaOne(t = asin(1.0 / 10), 2 * pi - asin(1.0 / 10))
 {
