@@ -6,7 +6,7 @@ real alpha = 0.4;
 real beta = 2;
 real gamma = 0.6;
 real delta = 1;
-real scaleFactor = 30;
+real scaleFactor = 1;
 
 real uAst = alpha * gamma / (beta + gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
@@ -14,7 +14,7 @@ real vAst = (1 - uAst) * (uAst + alpha);
 int T = 150;
 real dt = 0.1;
 int timeSteps = T / dt + 1;
-int n = 300;
+int n = 200;
 
 real[int, int] Curves(3, 1);
 int[int] be(1);
@@ -52,7 +52,7 @@ GG(0)
 func bord = G0(-n);
 mesh Th = buildmesh(bord);
 
-fespace Vh(Th,P2);
+fespace Vh(Th,P1);
 Vh u, v, wu, wv, uOld, vOld;
 
 u = uAst - 2 * 1e-7 * (x - 0.1 * y - 225/scaleFactor) * (x - 0.1 * y - 675/scaleFactor);
