@@ -6,7 +6,7 @@ real gamma = 0.6;
 real delta = 1;
 
 
-real uAst = alpha * gamma / (beta + gamma);
+real uAst = alpha * gamma / (beta - gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 
 int T = 39;

@@ -8,7 +8,7 @@ real gamma = 0.6;
 real delta = 10;
 
 int T = 90;
-real dt = 0.05;
+real dt = 0.01;
 int timeSteps = T / dt + 1;
 int n = 100;
 
@@ -52,12 +52,12 @@ plot(Th, wait = 1, ps = "mesh.ps");
 fespace Vh(Th, P2);
 Vh u, v, wu, wv, uOld, vOld;
 
-real uAst = alpha * gamma / (beta + gamma);
+real uAst = alpha * gamma / (beta - gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 real scaleFactor = 1;
 
 u = uAst;
-v = vAst * ((x - 235 / scaleFactor) ^ 2 + (y - 663 / scaleFactor) ^ 2 < 100 / scaleFactor);
+v = vAst * ((x - 185 / scaleFactor) ^ 2 + (y - 663 / scaleFactor) ^ 2 < 100);
 
 uOld = u;
 vOld = v;

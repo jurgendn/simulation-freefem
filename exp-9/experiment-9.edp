@@ -5,7 +5,7 @@ real beta = 1;
 real gamma = 0.5;
 real delta = 5;
 
-real uAst = alpha * gamma / (beta + gamma);
+real uAst = alpha * gamma / (beta - gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 
 int T = 100;
@@ -16,7 +16,7 @@ int n = 80;
 cout << uAst << endl;
 cout << vAst << endl;
 
-real scaleFactor = 10;
+real scaleFactor = 50;
 // Omega 1 bound
 border omegaOne(t = asin(1.0 / 10), 2 * pi - asin(1.0 / 10))
 {
@@ -91,8 +91,8 @@ for (real t = 0; t < T; t += dt)
     uOld = u;
     iteration ++;
     cout<<"Iteration: " << iteration <<endl;
-    plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
-    // plot(v, nbiso=40, value=1, fill=1, cmm="predator");
+    // plot(u, nbiso = 20, value = 1, fill = 1, cmm = "prey");
+    plot(v, nbiso=40, value=1, fill=1, cmm="predator");
 
     real ucount = int2d(Th)(u); 
 	real vcount = int2d(Th)(v);

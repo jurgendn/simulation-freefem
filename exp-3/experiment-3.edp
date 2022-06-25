@@ -8,7 +8,7 @@ real gamma = 0.5;
 real delta = 1;
 
 int T = 200;
-real dt = 0.1;
+real dt = 0.05;
 int timeSteps = T / dt + 1;
 int n = 100;
 

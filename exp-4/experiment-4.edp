@@ -1,6 +1,6 @@
 load "ppm2rnm" load "isoline" load "medit"
 
-    real alpha = 0.4;
+real alpha = 0.4;
 real beta = 2;
 real gamma = 0.6;
 real delta = 1;
@@ -10,9 +10,9 @@ real uAst = alpha * gamma / (beta + gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 
 int T = 150;
-real dt = 0.1;
+real dt = 0.01;
 int timeSteps = T / dt + 1;
-int n = 100;
+int n = 10;
 
 real[int, int] Curves(3, 1);
 int[int] be(1);

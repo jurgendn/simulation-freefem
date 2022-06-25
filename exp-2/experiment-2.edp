@@ -8,13 +8,13 @@ real gamma = 0.6;
 real delta = 1;
 real scaleFactor = 1;
 
-real uAst = alpha * gamma / (beta + gamma);
+real uAst = alpha * gamma / (beta - gamma);
 real vAst = (1 - uAst) * (uAst + alpha);
 
 int T = 150;
-real dt = 0.1;
+real dt = 0.05;
 int timeSteps = T / dt + 1;
-int n = 200;
+int n = 80;
 
 real[int, int] Curves(3, 1);
 int[int] be(1);
